@@ -45,6 +45,7 @@ public class initSqlCountroller {
         StringBuffer update = new StringBuffer("update ");
         update.append(tableName+" set ");
         update.append("\n<trim prefix=\"\" suffix=\" where GKEY = #{GKEY}\" suffixOverrides=\",\">");
+        StringBuffer selectByValue2 = new StringBuffer("");
 
 
         for (int i=0;i<colums.size();i++){
@@ -52,6 +53,7 @@ public class initSqlCountroller {
             insert2.append("\n<if test='"+colums.get(i)+" != null and "+colums.get(i)+" != \"\" '>\n#{"+colums.get(i)+"},\n</if>");
 
             update.append("\n<if test='"+colums.get(i)+" != null and "+colums.get(i)+" != \"\" '>\n"+colums.get(i)+"="+"#{"+colums.get(i)+"},\n</if>");
+            selectByValue2.append("\n<if test='"+colums.get(i)+" != null and "+colums.get(i)+" != \"\" '>\n and "+colums.get(i)+" = "+"#{"+colums.get(i)+"}\n</if>");
         }
         a = insert1.append(insert2).append("\n</trim>\n\n\n").toString();
         update.append("\n</trim>\n\n\n");
@@ -60,6 +62,10 @@ public class initSqlCountroller {
         select.append(tableName+"\n\n\n");
         StringBuffer delete = new StringBuffer("delete from ");
         delete.append(tableName+" where GKEY = #{GKEY}"+"\n\n\n");
+
+        StringBuffer selectByValue1 = new StringBuffer("select * from ");
+        selectByValue1.append(tableName+" \n<where>\n<if test = ' GKEY != null and GKEY != \"\" '> \n GKEY = #{GKEY}\n </if> ");
+        selectByValue1.append(selectByValue2).append("\n</where>\n\n\n");
 //        sql.put("insert",a);
 //        sql.put("update",update.toString());
 //        sql.put("select",select.toString());
@@ -77,6 +83,7 @@ public class initSqlCountroller {
             bf.write(update.toString());
             bf.write(select.toString());
             bf.write(delete.toString());
+            bf.write(selectByValue1.toString());
             bf.close();
         }catch (Exception e){
             e.printStackTrace();
